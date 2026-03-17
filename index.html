@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#07080f">
+  <title>Решатель уравнений</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+  <!-- KaTeX (math rendering) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+
+  <!-- Math.js + Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header class="site-header">
+  <div class="logo">∫</div>
+  <div class="header-text">
+    <h1>Решатель уравнений</h1>
+    <small>Аналит. · Граф. локализация [a,b] · Деление пополам · Хорды · Касательные · Горнер</small>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<main>
+
+  <!-- ① ФУНКЦИЯ -->
+  <div class="panel">
+    <div class="panel-title">
+      <span class="step-num">①</span>
+      Функция и параметры
+    </div>
+
+    <!-- Input row -->
+    <div class="func-row">
+      <span class="func-lbl">f(x) =</span>
+      <input
+        class="func-inp"
+        id="funcInput"
+        type="text"
+        value="x^3 - 2*x - 5"
+        placeholder="например: x^3 - 3*x + 1"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        inputmode="text"
+      >
+    </div>
+
+    <!-- Function preview -->
+    <div class="func-preview" id="funcPreview">
+      <span class="prev-lbl">ПРЕДПРОСМОТР</span>
+      <div class="prev-content">Загрузка...</div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="params-grid">
+      <div class="param-group">
+        <label class="param-label" for="Linput">Область поиска — L</label>
+        <input class="param-input" id="Linput" type="number" value="-10" step="1">
+      </div>
+      <div class="param-group">
+        <label class="param-label" for="Rinput">Область поиска — R</label>
+        <input class="param-input" id="Rinput" type="number" value="10" step="1">
+      </div>
+      <div class="param-group">
+        <label class="param-label" for="epsInput">Точность ε</label>
+        <input class="param-input" id="epsInput" type="number" value="0.000001" step="0.000001">
+      </div>
+      <div class="param-group">
+        <label class="param-label" for="decInput">Знаков после запятой</label>
+        <input class="param-input" id="decInput" type="number" value="6" min="1" max="15">
+      </div>
+    </div>
+
+    <!-- Examples -->
+    <div class="examples-row">
+      <span class="ex-lbl">Примеры:</span>
+      <button class="etag" onclick="setEx('x^3 - 2*x - 5',-10,10)">x³ − 2x − 5</button>
+      <button class="etag" onclick="setEx('x^3 - 6*x^2 + 11*x - 6',-2,8)">x³ − 6x² + 11x − 6</button>
+      <button class="etag" onclick="setEx('x^4 - 3*x^2 + 2',-4,4)">x⁴ − 3x² + 2</button>
+      <button class="etag" onclick="setEx('cos(x) - x',-5,5)">cos x − x</button>
+      <button class="etag" onclick="setEx('sin(x) - x/2',-8,8)">sin x − x/2</button>
+      <button class="etag" onclick="setEx('exp(x) - 3*x',-2,3)">eˣ − 3x</button>
+      <button class="etag" onclick="setEx('x^3 - x',-3,3)">x³ − x</button>
+      <button class="etag" onclick="setEx('x^2 - 2',-5,5)">x² − 2</button>
+    </div>
+  </div>
+
+  <!-- ② МЕТОД ЛОКАЛИЗАЦИИ -->
+  <div class="panel">
+    <div class="panel-title">
+      <span class="step-num">②</span>
+      Метод локализации корней — нахождение [a, b]
+    </div>
+
+    <div class="method-sel">
+      <!-- Analytical -->
+      <div class="msel-btn" id="btnAnal" onclick="selectMethod('anal')">
+        <span class="msl-icon">📐</span>
+        <div class="msl-name">Аналитический</div>
+        <div class="msl-desc">
+          Систематический обход [L, R] с шагом h = (R−L)/N.<br>
+          Поиск критических точек f'(x) = 0.<br>
+          Таблица знаков f(x) и обнаружение смен знака.
+        </div>
+        <div class="msl-badge" id="badgeAnal">ВЫБРАТЬ</div>
+      </div>
+
+      <!-- Graphical -->
+      <div class="msel-btn" id="btnGraph" onclick="selectMethod('graph')">
+        <span class="msl-icon">📊</span>
+        <div class="msl-name">Графический</div>
+        <div class="msl-desc">
+          Построение графика f(x) на [L, R].<br>
+          Визуальное определение нулей — пересечение с Ox.<br>
+          Ручной выбор a и b кликом по графику.
+        </div>
+        <div class="msl-badge" id="badgeGraph">ВЫБРАТЬ</div>
+      </div>
+    </div>
+
+    <button class="find-btn" id="findBtn" onclick="runLocalization()">
+      <span class="btn-icon">▶</span>
+      <span>Найти отрезки [a, b]</span>
+    </button>
+
+    <!-- Result injected here -->
+    <div id="locResult" style="margin-top:16px"></div>
+  </div>
+
+  <!-- ③ УТОЧНЕНИЕ КОРНЕЙ -->
+  <div id="resultsPanel">
+    <div class="results-title">
+      <span class="step-num" style="background:rgba(78,200,133,.12);border-color:var(--green);color:var(--green)">③</span>
+      Уточнение корней
+    </div>
+
+    <div class="tabs-nav">
+      <button class="tb active" onclick="swTab('bisection')">✂️ Деление пополам</button>
+      <button class="tb" onclick="swTab('chord')">📐 Метод хорд</button>
+      <button class="tb" onclick="swTab('newton')">📉 Касательные</button>
+    </div>
+
+    <div class="tp active" id="tp-bisection"></div>
+    <div class="tp" id="tp-chord"></div>
+    <div class="tp" id="tp-newton"></div>
+  </div>
+
+  <!-- ④ СХЕМА ГОРНЕРА -->
+  <div id="hornerPanel">
+    <div class="results-title">
+      <span class="step-num" style="background:rgba(168,130,232,.12);border-color:var(--purple);color:var(--purple)">④</span>
+      Нахождение x₂ и x₃ схемой Горнера
+    </div>
+    <div id="tp-horner"></div>
+  </div>
+
+</main>
+
+<!-- Script -->
+<script src="script.js"></script>
+
+</body>
+</html>
