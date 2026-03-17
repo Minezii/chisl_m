@@ -49,27 +49,70 @@
       Функция и параметры
     </div>
 
-    <!-- Input row -->
-    <div class="func-row">
-      <span class="func-lbl">f(x) =</span>
-      <input
-        class="func-inp"
-        id="funcInput"
-        type="text"
-        value="x^3 - 2*x - 5"
-        placeholder="например: x^3 - 3*x + 1"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        inputmode="text"
-      >
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeSingle" onclick="setInputMode('single')">
+        <span class="mode-icon">f</span>
+        <span>f(x) = 0</span>
+      </button>
+      <button class="mode-btn" id="modeDouble" onclick="setInputMode('double')">
+        <span class="mode-icon">f=g</span>
+        <span>f(x) = g(x)</span>
+      </button>
     </div>
 
-    <!-- Function preview -->
-    <div class="func-preview" id="funcPreview">
-      <span class="prev-lbl">ПРЕДПРОСМОТР</span>
-      <div class="prev-content">Загрузка...</div>
+    <!-- Single mode input -->
+    <div id="inputSingle">
+      <div class="func-row">
+        <span class="func-lbl">f(x) =</span>
+        <input class="func-inp" id="funcInput" type="text" value="x^3 - 2*x - 5"
+          placeholder="например: x^3 - 3*x + 1"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text">
+      </div>
+      <div class="func-preview" id="funcPreview">
+        <span class="prev-lbl">ПРЕДПРОСМОТР</span>
+        <div class="prev-content">Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Double mode input -->
+    <div id="inputDouble" style="display:none">
+      <div class="eq-inputs">
+        <div class="eq-side">
+          <div class="eq-label" style="color:var(--amber)">f(x) =</div>
+          <input class="func-inp eq-inp" id="funcInputL" type="text" value="ln(x)"
+            placeholder="левая часть, напр: ln(x)"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text">
+        </div>
+        <div class="eq-equals">=</div>
+        <div class="eq-side">
+          <div class="eq-label" style="color:var(--blue)">g(x) =</div>
+          <input class="func-inp eq-inp" id="funcInputR" type="text" value="1 - 2*x"
+            placeholder="правая часть, напр: 1-2x"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text">
+        </div>
+      </div>
+      <div class="eq-note">
+        Уравнение <b>f(x) = g(x)</b> решается как <b>f(x) − g(x) = 0</b>.
+        На графике строятся оба графика — пересечения и есть корни.
+      </div>
+      <div class="func-preview" id="funcPreviewDouble">
+        <span class="prev-lbl">ПРЕДПРОСМОТР</span>
+        <div class="prev-content">Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Supported functions hint -->
+    <div class="func-hint-bar">
+      <span class="fh-lbl">Функции:</span>
+      <span class="fh-tags">
+        <span class="fh-tag">sin cos tan tg ctg</span>
+        <span class="fh-tag">asin acos atan arctg arcctg</span>
+        <span class="fh-tag">ln lg log2</span>
+        <span class="fh-tag">exp sqrt abs</span>
+        <span class="fh-tag">sh ch th</span>
+        <span class="fh-tag">pi e</span>
+      </span>
     </div>
 
     <!-- Parameters -->
@@ -83,6 +126,10 @@
         <input class="param-input" id="Rinput" type="number" value="10" step="1">
       </div>
       <div class="param-group">
+        <label class="param-label" for="stepInput">Шаг таблицы h</label>
+        <input class="param-input" id="stepInput" type="number" value="1" step="0.1" min="0.0001">
+      </div>
+      <div class="param-group">
         <label class="param-label" for="epsInput">Точность ε</label>
         <input class="param-input" id="epsInput" type="number" value="0.000001" step="0.000001">
       </div>
@@ -92,17 +139,26 @@
       </div>
     </div>
 
+    <!-- Live graph -->
+    <div class="live-graph-wrap">
+      <div class="live-graph-hdr">
+        <span class="live-graph-title" id="liveGraphTitle">График f(x)</span>
+        <span class="live-graph-sub" id="liveGraphSub">введите функцию и область...</span>
+      </div>
+      <div class="graph-c" style="height:300px"><canvas id="liveChart"></canvas></div>
+    </div>
+
     <!-- Examples -->
     <div class="examples-row">
       <span class="ex-lbl">Примеры:</span>
-      <button class="etag" onclick="setEx('x^3 - 2*x - 5',-10,10)">x³ − 2x − 5</button>
-      <button class="etag" onclick="setEx('x^3 - 6*x^2 + 11*x - 6',-2,8)">x³ − 6x² + 11x − 6</button>
-      <button class="etag" onclick="setEx('x^4 - 3*x^2 + 2',-4,4)">x⁴ − 3x² + 2</button>
-      <button class="etag" onclick="setEx('cos(x) - x',-5,5)">cos x − x</button>
-      <button class="etag" onclick="setEx('sin(x) - x/2',-8,8)">sin x − x/2</button>
-      <button class="etag" onclick="setEx('exp(x) - 3*x',-2,3)">eˣ − 3x</button>
-      <button class="etag" onclick="setEx('x^3 - x',-3,3)">x³ − x</button>
-      <button class="etag" onclick="setEx('x^2 - 2',-5,5)">x² − 2</button>
+      <button class="etag" onclick="setEx('x^3 - 2*x - 5',null,-10,10,1)">x³−2x−5=0</button>
+      <button class="etag" onclick="setEx('x^3 - 6*x^2 + 11*x - 6',null,-2,8,1)">x³−6x²+11x−6=0</button>
+      <button class="etag" onclick="setEx('cos(x) - x',null,-5,5,1)">cos x−x=0</button>
+      <button class="etag etag-blue" onclick="setEx(null,'ln(x)','1 - 2*x',0.1,5,0.5)">ln x = 1−2x</button>
+      <button class="etag etag-blue" onclick="setEx(null,'sin(x)','x/2',-8,8,1)">sin x = x/2</button>
+      <button class="etag etag-blue" onclick="setEx(null,'exp(x)','3*x',-2,3,0.5)">eˣ = 3x</button>
+      <button class="etag etag-blue" onclick="setEx(null,'x^2','2*x + 3',-4,6,1)">x² = 2x+3</button>
+      <button class="etag etag-blue" onclick="setEx(null,'cos(x)','x^2 - 1',-3,3,0.5)">cos x = x²−1</button>
     </div>
   </div>
 
